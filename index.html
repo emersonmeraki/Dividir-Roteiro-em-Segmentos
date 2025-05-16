@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Divisor de Roteiros em Segmentos - Design Refinado</title>
+    <title>Divisor de Roteiros Avançado - Feedback de Salvamento</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             overscroll-behavior-y: contain;
-            background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%); /* Azul profundo para preto */
-            color: #e5e7eb; /* Cinza claro para texto principal */
+            background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%);
+            color: #e5e7eb;
         }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
@@ -19,7 +19,7 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
         .main-container {
-            background-color: rgba(31, 41, 55, 0.75); /* Azul acinzentado escuro com mais transparência */
+            background-color: rgba(31, 41, 55, 0.75);
             backdrop-filter: blur(16px) saturate(180%);
             -webkit-backdrop-filter: blur(16px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.125);
@@ -41,10 +41,9 @@
             background-color: rgba(55, 65, 81, 0.5);
             border-radius: 0.75rem;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease-in-out;
+            transition: box-shadow 0.3s ease-in-out;
         }
-        .segment-section:hover {
-            transform: translateY(-2px);
+         .segment-section:hover {
             box-shadow: 0 12px 20px -8px rgba(0,0,0,0.2);
         }
 
@@ -52,62 +51,56 @@
         #scriptInfo:not(.hidden) { box-shadow: 0 2px 4px rgba(0,0,0,0.2); background-color: rgba(55, 65, 81, 0.7); }
 
         .segment-item {
-            transition: all 0.2s ease-in-out;
             border-left-width: 4px;
             border-left-color: transparent;
         }
         .segment-item.last-copied-visual-marker {
-            border-left-color: #3b82f6; 
-            background-color: rgba(59, 130, 246, 0.15) !important;
-        }
-        .segment-item:hover {
-            background-color: rgba(75, 85, 99, 0.7);
-            transform: translateX(2px);
+            border-left-color: #3b82f6 !important; 
+            background-color: rgba(59, 130, 246, 0.1) !important;
         }
 
-        .copy-button {
-            transition: all 0.2s ease-out;
-        }
-        .copy-button.copied:not(.last-copied-button) {
-            background-color: #10b981; 
-            background-image: none;
-            color: white;
-        }
-        .copy-button.copied:not(.last-copied-button):hover {
-            background-color: #059669;
-        }
-        .copy-button.last-copied-button {
-            background-color: #3b82f6; 
-            background-image: none;
-            color: white;
-            font-weight: 600; 
-        }
-        .copy-button.last-copied-button:hover {
-            background-color: #2563eb;
-        }
-        .main-action-button {
-             transition: all 0.2s ease-out, transform 0.1s ease-in-out;
-        }
-        .main-action-button:hover {
-            filter: brightness(1.1);
-            transform: scale(1.02);
-        }
-        .main-action-button:active {
-            transform: scale(0.98);
-        }
+        .copy-button { transition: all 0.2s ease-out; }
+        .copy-button.copied:not(.last-copied-button) { background-color: #10b981; background-image: none; color: white; }
+        .copy-button.copied:not(.last-copied-button):hover { background-color: #059669; }
+        .copy-button.last-copied-button { background-color: #3b82f6; background-image: none; color: white; font-weight: 600; }
+        .copy-button.last-copied-button:hover { background-color: #2563eb; }
+        
+        .main-action-button { transition: all 0.2s ease-out, transform 0.1s ease-in-out; }
+        .main-action-button:hover:not(:disabled) { filter: brightness(1.1); transform: scale(1.02); }
+        .main-action-button:active:not(:disabled) { transform: scale(0.98); }
+        .main-action-button:disabled { opacity: 0.7; cursor: not-allowed; }
+
 
         textarea::placeholder { color: #9ca3af; }
-        textarea {
+        textarea, input[type="number"] {
             background-color: rgba(55, 65, 81, 0.8);
             border-color: rgba(107, 114, 128, 0.7);
+            color: #e5e7eb;
         }
-        textarea:hover { border-color: rgba(156, 163, 175, 0.8); }
-        textarea:focus {
+        textarea:hover, input[type="number"]:hover { border-color: rgba(156, 163, 175, 0.8); }
+        textarea:focus, input[type="number"]:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+            outline: none;
         }
-        .local-copy-feedback { /* Classe para o feedback local */
-            transition: opacity 0.3s ease-in-out;
+        .local-copy-feedback { transition: opacity 0.3s ease-in-out; }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -122,9 +115,8 @@
                 Dividir Roteiro
             </h1>
         </div>
-
         <p class="mb-8 text-gray-300 text-center text-base sm:text-lg leading-relaxed">
-            Cole seu roteiro abaixo. A ferramenta o dividirá em partes otimizadas para narração. Seu trabalho é salvo automaticamente.
+            Cole seu roteiro abaixo. A ferramenta o dividirá em partes otimizadas para criar vídeos por partes.
         </p>
 
         <div class="mb-6">
@@ -134,23 +126,34 @@
             <div id="charLimitWarning" class="text-sm text-red-400 mt-1 min-h-[1.25rem]"></div>
         </div>
 
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <label for="maxPartsInput" class="block text-sm font-medium text-gray-300">Máximo de partes por segmento:</label>
+                <div id="saveIndicator" class="flex items-center text-xs text-green-400 opacity-0 transition-all duration-300 ease-in-out transform translate-y-1">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span id="saveIndicatorText">Salvo!</span>
+                </div>
+            </div>
+            <input type="number" id="maxPartsInput" value="95" min="1" max="500" class="w-full sm:w-48 p-2.5 rounded-lg shadow-sm focus:ring-2 text-base">
+        </div>
+
         <div class="flex flex-col sm:flex-row gap-4 mb-10">
             <button id="splitButton" onclick="dividirRoteiroEmSegmentos()"
                 class="main-action-button w-full sm:w-auto flex-grow font-semibold py-3 px-6 rounded-lg shadow-lg
                        bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500 hover:from-blue-700 hover:via-sky-600 hover:to-teal-600
-                       focus:outline-none focus:ring-4 focus:ring-sky-500 focus:ring-opacity-50 text-white text-lg">
-                Dividir Roteiro
+                       focus:outline-none focus:ring-4 focus:ring-sky-500 focus:ring-opacity-50 text-white text-lg flex items-center justify-center">
+                <span id="splitButtonText">Dividir Roteiro</span>
             </button>
             <button id="clearAllButton" onclick="limparTudo()"
                 class="main-action-button w-full sm:w-auto font-semibold py-3 px-6 rounded-lg shadow-lg
                        bg-red-600 hover:bg-red-700
-                       focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-white text-lg">
-                Limpar Tudo
+                       focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-white text-lg flex items-center justify-center">
+                <span id="clearButtonText">Limpar Tudo</span>
             </button>
         </div>
 
         <div id="output" class="mt-8 hidden"></div>
-        </div>
+    </div>
 
     <footer class="text-center py-8 text-sm text-gray-400">
         <p>&copy; <span id="currentYear"></span> Ferramenta de Divisão de Roteiros.</p>
@@ -159,26 +162,56 @@
 
     <script>
         // Constants
+        let MAX_PARTS_PER_SEGMENT = 95; 
         const MIN_WORDS_PER_PART = 3;
         const SHORT_PART_INDEX_LIMIT = 15;
         const MIN_WORDS_CONTEXT_EXTENDED = 21;
         const MAX_WORDS_PER_PART_HARD_LIMIT = 50;
         const MAX_CHAR_LIMIT_TTS = 17000;
-        const MAX_PARTS_PER_SEGMENT = 95;
         const CHARS_PER_MINUTE_NARRATION = 850;
 
         // LocalStorage keys
-        const LS_ROTEIRO_KEY = 'roteiroSalvoModerno';
-        const LS_COPIA_ESTADO_KEY = 'estadoCopiaSegmentosModerno';
+        const LS_ROTEIRO_KEY = 'roteiroSalvoModernoV4'; // Incremented version for new save indicator logic
+        const LS_COPIA_ESTADO_KEY = 'estadoCopiaSegmentosModernoV4';
+        const LS_MAX_PARTS_KEY = 'maxPartesPorSegmentoModernoV4';
 
         // DOM Elements
         const scriptInputElement = document.getElementById('scriptInput');
         const scriptInfoDivElement = document.getElementById('scriptInfo');
         const charLimitWarningDivElement = document.getElementById('charLimitWarning');
         const outputDivElement = document.getElementById('output');
-        // copyFeedbackGlobalElement não é mais necessário
+        const maxPartsInputElement = document.getElementById('maxPartsInput');
+        const splitButton = document.getElementById('splitButton');
+        const splitButtonText = document.getElementById('splitButtonText');
+        const clearAllButton = document.getElementById('clearAllButton');
+        const clearButtonText = document.getElementById('clearButtonText');
+        const saveIndicatorElement = document.getElementById('saveIndicator');
+        const saveIndicatorTextElement = document.getElementById('saveIndicatorText');
         
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const spinnerSVG = `<svg class="spinner h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>`;
+
+        let saveIndicatorTimeout; 
+
+        function showSaveIndicator(message = "Salvo!") {
+            if (saveIndicatorTimeout) {
+                clearTimeout(saveIndicatorTimeout);
+            }
+            if(saveIndicatorTextElement) saveIndicatorTextElement.textContent = message;
+
+            saveIndicatorElement.classList.remove('opacity-0', 'translate-y-1');
+            saveIndicatorElement.classList.add('opacity-100', 'translate-y-0');
+
+            saveIndicatorTimeout = setTimeout(() => {
+                saveIndicatorElement.classList.remove('opacity-100', 'translate-y-0');
+                saveIndicatorElement.classList.add('opacity-0', 'translate-y-1');
+            }, 1500); 
+        }
+
 
         function getFromLocalStorage(key, defaultValue = null) {
             try {
@@ -188,7 +221,11 @@
         }
 
         function saveToLocalStorage(key, value) {
-            try { localStorage.setItem(key, JSON.stringify(value)); } 
+            try { 
+                localStorage.setItem(key, JSON.stringify(value)); 
+                // Não chamar showSaveIndicator aqui diretamente para evitar chamadas múltiplas rápidas.
+                // Chamar explicitamente onde for apropriado.
+            } 
             catch (e) { console.error("Error saving to localStorage", e); }
         }
 
@@ -231,6 +268,7 @@
                 scriptInputElement.setSelectionRange(newSelectionStart, newSelectionEnd);
             }
             saveToLocalStorage(LS_ROTEIRO_KEY, scriptInputElement.value);
+            showSaveIndicator("Roteiro Salvo!");
         }
         
         function contarPalavrasValidas(texto) {
@@ -251,80 +289,129 @@
             }
             return balance === 0;
         }
-
+        
         function generateAllPartsFromText(scriptText) {
             let allGeneratedParts = [];
-            let remainingText = scriptText;
+            let remainingText = scriptText.trim();
+            
             while (remainingText.length > 0) {
                 const prospectivePartIndex = allGeneratedParts.length;
                 let minWords = (prospectivePartIndex < SHORT_PART_INDEX_LIMIT) ? MIN_WORDS_PER_PART : MIN_WORDS_CONTEXT_EXTENDED;
                 let allowCommaAsPunctuation = (prospectivePartIndex >= SHORT_PART_INDEX_LIMIT);
-                let foundValidBreak = false;
+                let foundValidBreakForNextIndividualPart = false;
+                let currentPartText = "";
+                let textAfterGeneratedPart = "";
 
                 for (let k = 1; k <= remainingText.length; k++) {
                     const potentialPart = remainingText.substring(0, k);
                     const wordCount = contarPalavrasValidas(potentialPart);
-                    let currentPartText = "";
-                    let textAfterGeneratedPart = "";
 
                     if (wordCount > MAX_WORDS_PER_PART_HARD_LIMIT) {
-                        let forcedText = "";
-                        const words = remainingText.split(/(\s+)/);
-                        let lastValidLen = 0;
-                        for (let i = 0; i < words.length; i++) {
-                            const tempForced = forcedText + words[i];
-                            if (contarPalavrasValidas(tempForced.trim()) > MAX_WORDS_PER_PART_HARD_LIMIT) break;
-                            forcedText = tempForced;
-                            if (words[i].trim() !== "") lastValidLen = forcedText.length;
+                        let forcedIndividualPartText = "";
+                        let wordsInOriginalText = remainingText.split(/(\s+)/);
+                        let currentLengthInChars = 0;
+                        let lastValidLengthInChars = 0;
+
+                        for (let i = 0; i < wordsInOriginalText.length; i++) {
+                            let token = wordsInOriginalText[i];
+                            let nextForcedIndividualPartText = forcedIndividualPartText + token;
+                            
+                            if (contarPalavrasValidas(nextForcedIndividualPartText.trim()) > MAX_WORDS_PER_PART_HARD_LIMIT) {
+                                if (lastValidLengthInChars === 0 && token.trim() !== "") {
+                                    lastValidLengthInChars = token.length; 
+                                }
+                                break; 
+                            }
+                            forcedIndividualPartText = nextForcedIndividualPartText;
+                            currentLengthInChars += token.length;      
+                            
+                            if (token.trim() !== "") {
+                                 lastValidLengthInChars = currentLengthInChars;
+                            }
                         }
-                        currentPartText = remainingText.substring(0, lastValidLen).trim();
-                        textAfterGeneratedPart = remainingText.substring(lastValidLen).trim();
+                        
+                        currentPartText = remainingText.substring(0, lastValidLengthInChars).trim();
+                        textAfterGeneratedPart = remainingText.substring(lastValidLengthInChars).trim();
+
                         if (currentPartText && (contarPalavrasValidas(currentPartText) >= minWords || (contarPalavrasValidas(currentPartText) > 0 && !textAfterGeneratedPart))) {
-                           allGeneratedParts.push(currentPartText);
-                           remainingText = textAfterGeneratedPart;
-                           foundValidBreak = true;
+                            allGeneratedParts.push(currentPartText);
+                            remainingText = textAfterGeneratedPart;
+                            foundValidBreakForNextIndividualPart = true;
+                        } else {
+                            foundValidBreakForNextIndividualPart = false; 
                         }
-                        break;
+                        break; 
                     }
 
                     const charAtKMinus1 = remainingText[k - 1];
-                    let isNaturalBreak = false;
-                    if (['.', '!', '?', ';'].includes(charAtKMinus1) && checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalBreak = true;
-                    else if (charAtKMinus1 === ':' && (k < remainingText.length && remainingText[k] === ' ') && checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalBreak = true;
-                    else if (charAtKMinus1 === ')' && checkParenthesesBalance(potentialPart) && wordCount >= minWords && (k === remainingText.length || remainingText[k] === ' ' || ['.', '!', '?', ',', ';', ':'].includes(remainingText[k]))) isNaturalBreak = true;
-                    else if (allowCommaAsPunctuation && charAtKMinus1 === ',' && (k < remainingText.length && remainingText[k] === ' ') && checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalBreak = true;
+                    let isNaturalPunctuationBreak = false;
 
-                    if (isNaturalBreak || k === remainingText.length) {
-                        if (isNaturalBreak || (wordCount >= minWords && wordCount <= MAX_WORDS_PER_PART_HARD_LIMIT)) {
+                    if (['.', '!', '?', ';'].includes(charAtKMinus1)) {
+                        if (checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalPunctuationBreak = true;
+                    } else if (charAtKMinus1 === ':' && (k < remainingText.length && remainingText[k] === ' ')) {
+                        if (checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalPunctuationBreak = true;
+                    } else if (charAtKMinus1 === ')') {
+                        if (checkParenthesesBalance(potentialPart) && wordCount >= minWords &&
+                            (k === remainingText.length || remainingText[k] === ' ' || ['.', '!', '?', ',', ';', ':'].includes(remainingText[k]))) {
+                            isNaturalPunctuationBreak = true;
+                        }
+                    } else if (allowCommaAsPunctuation && charAtKMinus1 === ',' && (k < remainingText.length && remainingText[k] === ' ')) {
+                         if (checkParenthesesBalance(potentialPart) && wordCount >= minWords) {
+                            isNaturalPunctuationBreak = true;
+                        }
+                    }
+
+                    if (isNaturalPunctuationBreak) {
+                        currentPartText = potentialPart.trim();
+                        textAfterGeneratedPart = remainingText.substring(k).trim();
+                        allGeneratedParts.push(currentPartText);
+                        remainingText = textAfterGeneratedPart;
+                        foundValidBreakForNextIndividualPart = true;
+                        break;
+                    }
+
+                    if (k === remainingText.length) {
+                        if (wordCount >= minWords && wordCount <= MAX_WORDS_PER_PART_HARD_LIMIT) {
                             currentPartText = potentialPart.trim();
-                            textAfterGeneratedPart = remainingText.substring(k).trim();
                             allGeneratedParts.push(currentPartText);
-                            remainingText = textAfterGeneratedPart;
-                            foundValidBreak = true;
+                            remainingText = "";
+                            foundValidBreakForNextIndividualPart = true;
+                        } else { 
+                            foundValidBreakForNextIndividualPart = false;
                         }
                         break;
                     }
-                }
-                if (!foundValidBreak) {
-                    if (remainingText.trim()) {
-                         if (allGeneratedParts.length > 0) {
-                            let lastP = allGeneratedParts.pop() + " " + remainingText.trim();
-                            if(contarPalavrasValidas(lastP) <= MAX_WORDS_PER_PART_HARD_LIMIT) allGeneratedParts.push(lastP);
-                            else { 
-                                let truncatedPart = lastP.split(/\s+/).slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" ");
-                                allGeneratedParts.push(truncatedPart);
-                            }
+                } 
+
+                if (!foundValidBreakForNextIndividualPart && remainingText.trim()) {
+                    const textToPotentiallyAdd = remainingText.trim();
+                    remainingText = ""; // Assume we will consume or correctly update remainingText
+
+                    if (allGeneratedParts.length > 0) {
+                        let lastPart = allGeneratedParts[allGeneratedParts.length - 1]; 
+                        let combinedTestText = (lastPart + " " + textToPotentiallyAdd).trim();
+                        if (contarPalavrasValidas(combinedTestText) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
+                            allGeneratedParts[allGeneratedParts.length - 1] = combinedTestText;
                         } else {
-                            let singlePart = remainingText.trim();
-                             if(contarPalavrasValidas(singlePart) > MAX_WORDS_PER_PART_HARD_LIMIT) {
-                                singlePart = singlePart.split(/\s+/).slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" ");
-                             }
-                            allGeneratedParts.push(singlePart);
+                            if (contarPalavrasValidas(textToPotentiallyAdd) > 0 && contarPalavrasValidas(textToPotentiallyAdd) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
+                                allGeneratedParts.push(textToPotentiallyAdd);
+                            } else if (contarPalavrasValidas(textToPotentiallyAdd) > MAX_WORDS_PER_PART_HARD_LIMIT) {
+                                let words = textToPotentiallyAdd.split(/\s+/);
+                                allGeneratedParts.push(words.slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" "));
+                                remainingText = words.slice(MAX_WORDS_PER_PART_HARD_LIMIT).join(" ").trim(); 
+                            }
+                        }
+                    } else { 
+                        if (contarPalavrasValidas(textToPotentiallyAdd) > 0 && contarPalavrasValidas(textToPotentiallyAdd) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
+                            allGeneratedParts.push(textToPotentiallyAdd);
+                        } else if (contarPalavrasValidas(textToPotentiallyAdd) > MAX_WORDS_PER_PART_HARD_LIMIT) {
+                            let words = textToPotentiallyAdd.split(/\s+/);
+                            allGeneratedParts.push(words.slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" "));
+                            remainingText = words.slice(MAX_WORDS_PER_PART_HARD_LIMIT).join(" ").trim(); 
                         }
                     }
-                    break;
                 }
-            }
+            } 
             return allGeneratedParts.filter(p => p.trim().length > 0 && contarPalavrasValidas(p) > 0);
         }
 
@@ -336,13 +423,16 @@
             const segments = [];
             if (!allParts || allParts.length === 0) return segments;
             let currentSegmentParts = [], currentGlobalPartIndex = 1;
+            const currentMaxPartsPerSegment = parseInt(maxPartsInputElement.value, 10) || MAX_PARTS_PER_SEGMENT;
 
             for (const partText of allParts) {
                 const tempParts = [...currentSegmentParts, partText];
-                if (currentSegmentParts.length > 0 && (currentSegmentParts.length >= MAX_PARTS_PER_SEGMENT || getLengthOfTextToCopyForSegment(tempParts) > MAX_CHAR_LIMIT_TTS)) {
+                if (currentSegmentParts.length > 0 && 
+                    (currentSegmentParts.length >= currentMaxPartsPerSegment || getLengthOfTextToCopyForSegment(tempParts) > MAX_CHAR_LIMIT_TTS)
+                   ) {
                     segments.push({ parts: [...currentSegmentParts], startGlobalIndex: currentGlobalPartIndex });
                     currentGlobalPartIndex += currentSegmentParts.length;
-                    currentSegmentParts = [];
+                    currentSegmentParts = []; 
                 }
                 currentSegmentParts.push(partText);
             }
@@ -352,44 +442,40 @@
             return segments;
         }
 
-        function dividirRoteiroEmSegmentos() {
-            const scriptText = scriptInputElement.value.trim();
-            outputDivElement.innerHTML = '';
-            outputDivElement.classList.add('hidden');
-            saveToLocalStorage(LS_COPIA_ESTADO_KEY, { copied: [], lastCopied: null });
+        async function dividirRoteiroEmSegmentos() {
+            splitButton.disabled = true;
+            splitButtonText.innerHTML = `${spinnerSVG} Dividindo...`;
+            await new Promise(resolve => setTimeout(resolve, 50)); 
 
-            if (!scriptText) {
-                outputDivElement.innerHTML = `<p class="text-center text-gray-400 p-3">Digite ou cole seu roteiro para começar.</p>`;
+            try {
+                const scriptText = scriptInputElement.value.trim();
+                outputDivElement.innerHTML = '';
+                outputDivElement.classList.add('hidden');
+                saveToLocalStorage(LS_COPIA_ESTADO_KEY, { copied: [], lastCopied: null });
+                showSaveIndicator("Estado de cópia resetado.");
+
+
+                if (!scriptText) {
+                    outputDivElement.innerHTML = `<p class="text-center text-gray-400 p-3">Digite ou cole seu roteiro para começar.</p>`;
+                    outputDivElement.classList.remove('hidden');
+                    return;
+                }
+
+                let allGeneratedParts = generateAllPartsFromText(scriptText);
+                allGeneratedParts = allGeneratedParts.filter(p => p.trim().length > 0 && contarPalavrasValidas(p) > 0);
+
+                if (allGeneratedParts.length === 0) {
+                    outputDivElement.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-30 border border-orange-700 rounded-md">Não foi possível dividir o roteiro em partes válidas.</p>`;
+                    outputDivElement.classList.remove('hidden');
+                    return;
+                }
+                const scriptSegments = groupPartsIntoSegments(allGeneratedParts);
                 outputDivElement.classList.remove('hidden');
-                return;
+                displaySegmentResults(scriptSegments);
+            } finally {
+                splitButtonText.innerHTML = 'Dividir Roteiro';
+                splitButton.disabled = false;
             }
-
-            let allGeneratedParts = generateAllPartsFromText(scriptText);
-             const finalFilteredParts = [];
-            for(let i = 0; i < allGeneratedParts.length; i++) {
-                const partText = allGeneratedParts[i].trim();
-                if (!partText) continue;
-                const wc = contarPalavrasValidas(partText);
-                const minW = (finalFilteredParts.length < SHORT_PART_INDEX_LIMIT) ? MIN_WORDS_PER_PART : MIN_WORDS_CONTEXT_EXTENDED;
-                if (wc >= minW && wc <= MAX_WORDS_PER_PART_HARD_LIMIT) finalFilteredParts.push(partText);
-                else if (wc < minW && finalFilteredParts.length > 0 && allGeneratedParts.length > 1) {
-                    let combined = finalFilteredParts.pop() + " " + partText;
-                     if (contarPalavrasValidas(combined) <= MAX_WORDS_PER_PART_HARD_LIMIT) finalFilteredParts.push(combined.trim());
-                    else {
-                        finalFilteredParts.push(combined.trim().split(/\s+/).slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" "));
-                     }
-                } else if (wc > 0 && wc < minW && finalFilteredParts.length === 0 && wc <= MAX_WORDS_PER_PART_HARD_LIMIT) finalFilteredParts.push(partText);
-            }
-            allGeneratedParts = finalFilteredParts.filter(p => p.trim().length > 0 && contarPalavrasValidas(p) > 0);
-
-            if (allGeneratedParts.length === 0) {
-                outputDivElement.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-30 border border-orange-700 rounded-md">Não foi possível dividir o roteiro em partes válidas.</p>`;
-                outputDivElement.classList.remove('hidden');
-                return;
-            }
-            const scriptSegments = groupPartsIntoSegments(allGeneratedParts);
-            outputDivElement.classList.remove('hidden');
-            displaySegmentResults(scriptSegments);
         }
 
         function displaySegmentResults(segments) {
@@ -436,17 +522,16 @@
                 listContainer.appendChild(ol);
                 segmentSection.appendChild(listContainer);
 
-                const copyButton = document.createElement('button');
-                copyButton.id = `copyButtonSegment${segmentIndex}`;
-                copyButton.className = 'copy-button mt-6 w-full font-medium py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-sky-500 text-white flex items-center justify-center bg-teal-600 hover:bg-teal-700';
-                copyButton.innerHTML = `<svg class="copy-button-icon w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> <span>Copiar Segmento ${segmentIndex + 1}</span>`;
-                copyButton.onclick = () => copiarSegmento(segmentData.parts, segmentIndex);
-                segmentSection.appendChild(copyButton);
+                const copyButtonElement = document.createElement('button');
+                copyButtonElement.id = `copyButtonSegment${segmentIndex}`;
+                copyButtonElement.className = 'copy-button mt-6 w-full font-medium py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-sky-500 text-white flex items-center justify-center bg-teal-600 hover:bg-teal-700';
+                copyButtonElement.innerHTML = `<svg class="copy-button-icon w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> <span>Copiar Segmento ${segmentIndex + 1}</span>`;
+                copyButtonElement.onclick = () => copiarSegmento(segmentData.parts, segmentIndex);
+                segmentSection.appendChild(copyButtonElement);
                 
-                // Adiciona o placeholder para o feedback de cópia local
                 const localCopyFeedback = document.createElement('p');
                 localCopyFeedback.id = `localCopyFeedbackSegment${segmentIndex}`;
-                localCopyFeedback.className = 'local-copy-feedback text-sm mt-3 text-green-400 h-5 text-center opacity-0'; // Começa invisível (opacity-0)
+                localCopyFeedback.className = 'local-copy-feedback text-sm mt-3 text-green-400 h-5 text-center opacity-0';
                 segmentSection.appendChild(localCopyFeedback);
 
                 outputDivElement.appendChild(segmentSection);
@@ -481,7 +566,7 @@
                         
                         const segmentSection = btn.closest('.segment-section');
                         if (segmentSection) {
-                            const firstLi = segmentSection.querySelector('.segment-item');
+                            const firstLi = segmentSection.querySelector('.segment-item:first-child');
                             if (firstLi) {
                                 firstLi.classList.add('last-copied-visual-marker');
                             }
@@ -502,6 +587,8 @@
             }
             estadoCopia.lastCopied = segmentIndex;
             saveToLocalStorage(LS_COPIA_ESTADO_KEY, estadoCopia);
+            showSaveIndicator("Progresso de cópia salvo!");
+
 
             const localFeedbackElement = document.getElementById(`localCopyFeedbackSegment${segmentIndex}`);
 
@@ -509,11 +596,9 @@
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     if(localFeedbackElement) {
                         localFeedbackElement.textContent = `Segmento ${segmentIndex + 1} copiado!`;
-                        localFeedbackElement.classList.remove('opacity-0');
-                        localFeedbackElement.classList.add('text-green-400'); // Garante cor verde para sucesso
-                        setTimeout(() => {
-                            localFeedbackElement.classList.add('opacity-0');
-                        }, 2500);
+                        localFeedbackElement.classList.remove('opacity-0', 'text-red-400');
+                        localFeedbackElement.classList.add('text-green-400');
+                        setTimeout(() => { localFeedbackElement.classList.add('opacity-0'); }, 2500);
                     }
                     atualizarVisualizacaoCopia();
                 }).catch(err => {
@@ -544,40 +629,74 @@
             if(localFeedbackEl) {
                 localFeedbackEl.textContent = message;
                 localFeedbackEl.classList.remove('opacity-0');
-                if(success) localFeedbackEl.classList.replace('text-red-400','text-green-400') 
-                else localFeedbackEl.classList.replace('text-green-400','text-red-400');
-
-                setTimeout(() => {
-                    localFeedbackEl.classList.add('opacity-0');
-                }, 3000);
+                if(success) {
+                    localFeedbackEl.classList.remove('text-red-400');
+                    localFeedbackEl.classList.add('text-green-400');
+                } else {
+                    localFeedbackEl.classList.remove('text-green-400');
+                    localFeedbackEl.classList.add('text-red-400');
+                }
+                setTimeout(() => { localFeedbackEl.classList.add('opacity-0'); }, 3000);
             }
             document.body.removeChild(textArea);
         }
 
-        function limparTudo() {
-            scriptInputElement.value = '';
-            outputDivElement.innerHTML = '';
-            outputDivElement.classList.add('hidden');
-            scriptInfoDivElement.classList.add('hidden');
-            // Não há mais copyFeedbackGlobalElement
-            
-            removeFromLocalStorage(LS_ROTEIRO_KEY);
-            removeFromLocalStorage(LS_COPIA_ESTADO_KEY);
-            
-            handleInput(); 
-            console.log("Tudo limpo, incluindo LocalStorage.");
-        }
+        async function limparTudo() {
+            clearAllButton.disabled = true;
+            clearButtonText.innerHTML = `${spinnerSVG} Limpando...`;
+            await new Promise(resolve => setTimeout(resolve, 50));
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const roteiroSalvo = getFromLocalStorage(LS_ROTEIRO_KEY, '');
-            if (roteiroSalvo) {
-                scriptInputElement.value = roteiroSalvo;
-                handleInput(); 
-                if (scriptInputElement.value.trim()) { 
+            try {
+                scriptInputElement.value = '';
+                outputDivElement.innerHTML = '';
+                outputDivElement.classList.add('hidden');
+                scriptInfoDivElement.classList.add('hidden');
+                
+                removeFromLocalStorage(LS_ROTEIRO_KEY);
+                removeFromLocalStorage(LS_COPIA_ESTADO_KEY);
+                
+                handleInput(); // Isso vai chamar showSaveIndicator("Roteiro Salvo!") que pode ser um pouco confuso aqui.
+                               // Melhor chamar showSaveIndicator com mensagem específica.
+                showSaveIndicator("Dados Limpos!");
+                console.log("Roteiro e estado de cópia limpos.");
+            } finally {
+                clearButtonText.innerHTML = 'Limpar Tudo';
+                clearAllButton.disabled = false;
+            }
+        }
+        
+        function updateMaxPartsSetting() {
+            const newMaxParts = parseInt(maxPartsInputElement.value, 10);
+            if (newMaxParts && newMaxParts > 0 && newMaxParts <= 500) {
+                MAX_PARTS_PER_SEGMENT = newMaxParts; 
+                saveToLocalStorage(LS_MAX_PARTS_KEY, newMaxParts);
+                showSaveIndicator("Configuração salva!");
+                console.log("Máximo de partes por segmento atualizado para:", newMaxParts);
+                if (outputDivElement.innerHTML.trim() !== '' && !outputDivElement.classList.contains('hidden') && scriptInputElement.value.trim() !== '') {
                     dividirRoteiroEmSegmentos();
                 }
             } else {
-                 handleInput(); 
+                maxPartsInputElement.value = MAX_PARTS_PER_SEGMENT; 
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedMaxParts = getFromLocalStorage(LS_MAX_PARTS_KEY, 95); 
+            MAX_PARTS_PER_SEGMENT = parseInt(savedMaxParts, 10) || 95;
+            maxPartsInputElement.value = MAX_PARTS_PER_SEGMENT;
+            maxPartsInputElement.addEventListener('change', updateMaxPartsSetting);
+
+            const roteiroSalvo = getFromLocalStorage(LS_ROTEIRO_KEY, '');
+            if (roteiroSalvo) {
+                scriptInputElement.value = roteiroSalvo;
+                // handleInput() é chamado abaixo, o que já inclui o save indicator
+            }
+            handleInput(); // Chamada para processar texto inicial e mostrar info de caracteres se houver
+                           // e para garantir que o save indicator seja chamado se houver texto.
+
+            if (scriptInputElement.value.trim()) { 
+                 // Se há roteiro salvo, tenta dividir ao carregar
+                dividirRoteiroEmSegmentos();
             }
         });
     </script>
