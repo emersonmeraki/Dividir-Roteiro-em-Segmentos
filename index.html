@@ -3,174 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Divisor de Roteiros em Segmentos</title>
+    <title>Divisor de Roteiros em Segmentos - Design Refinado</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             overscroll-behavior-y: contain;
-            background-image: linear-gradient(to bottom right, #1a202c, #2d3748); /* Gradiente de fundo */
+            background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%); /* Azul profundo para preto */
+            color: #e5e7eb; /* Cinza claro para texto principal */
         }
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        .main-container {
+            background-color: rgba(31, 41, 55, 0.75); /* Azul acinzentado escuro com mais transparência */
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        ::-webkit-scrollbar-track {
-            background: #2d3748;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4a5568;
-            border-radius: 10px;
-            border: 2px solid #2d3748;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #718096;
-        }
-        .copy-button-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-right: 0.5rem;
-            display: inline-block;
-            vertical-align: middle;
-        }
+
         .results-scroll-container {
-            max-height: 350px;
+            max-height: 380px;
             overflow-y: auto;
-            padding: 0.75rem;
-            background-color: rgba(45, 55, 72, 0.7);
+            padding: 0.5rem;
+            background-color: rgba(17, 24, 39, 0.5);
             border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(74, 85, 104, 0.5);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .segment-section {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             padding: 1.5rem;
-            background-color: rgba(26, 32, 44, 0.6);
+            background-color: rgba(55, 65, 81, 0.5);
             border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(74, 85, 104, 0.3);
-        }
-        .main-container {
-            background-color: rgba(31, 41, 55, 0.85); /* bg-gray-800 com mais opacidade */
-            backdrop-filter: blur(12px); /* Efeito de vidro fosco mais pronunciado */
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(74, 85, 104, 0.25); /* Borda um pouco mais visível */
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1); /* Sombra mais forte */
-        }
-        #scriptInfo {
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease-in-out;
         }
-        #scriptInfo:not(.hidden) {
-             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .segment-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -8px rgba(0,0,0,0.2);
+        }
+
+        #scriptInfo { transition: all 0.3s ease-in-out; }
+        #scriptInfo:not(.hidden) { box-shadow: 0 2px 4px rgba(0,0,0,0.2); background-color: rgba(55, 65, 81, 0.7); }
+
+        .segment-item {
+            transition: all 0.2s ease-in-out;
+            border-left-width: 4px;
+            border-left-color: transparent;
+        }
+        .segment-item.last-copied-visual-marker {
+            border-left-color: #3b82f6; 
+            background-color: rgba(59, 130, 246, 0.15) !important;
+        }
+        .segment-item:hover {
+            background-color: rgba(75, 85, 99, 0.7);
+            transform: translateX(2px);
+        }
+
+        .copy-button {
+            transition: all 0.2s ease-out;
+        }
+        .copy-button.copied:not(.last-copied-button) {
+            background-color: #10b981; 
+            background-image: none;
+            color: white;
+        }
+        .copy-button.copied:not(.last-copied-button):hover {
+            background-color: #059669;
+        }
+        .copy-button.last-copied-button {
+            background-color: #3b82f6; 
+            background-image: none;
+            color: white;
+            font-weight: 600; 
+        }
+        .copy-button.last-copied-button:hover {
+            background-color: #2563eb;
+        }
+        .main-action-button {
+             transition: all 0.2s ease-out, transform 0.1s ease-in-out;
+        }
+        .main-action-button:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+        .main-action-button:active {
+            transform: scale(0.98);
+        }
+
+        textarea::placeholder { color: #9ca3af; }
+        textarea {
+            background-color: rgba(55, 65, 81, 0.8);
+            border-color: rgba(107, 114, 128, 0.7);
+        }
+        textarea:hover { border-color: rgba(156, 163, 175, 0.8); }
+        textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+        .local-copy-feedback { /* Classe para o feedback local */
+            transition: opacity 0.3s ease-in-out;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="text-gray-200 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+<body class="min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-600 selection:text-white">
 
-    <div class="main-container p-6 sm:p-10 rounded-xl shadow-2xl w-full max-w-4xl">
+    <div class="main-container p-6 sm:p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-4xl my-8">
         <div class="flex flex-col sm:flex-row justify-center items-center mb-8 text-center sm:text-left">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 sm:w-12 sm:h-12 text-blue-400 mb-3 sm:mb-0 sm:mr-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
-            <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
-                Dividir Roteiro em Segmentos
+            <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-400 to-teal-300">
+                Dividir Roteiro
             </h1>
         </div>
 
-        <p class="mb-6 text-gray-300 text-center text-base sm:text-lg">
-            Cole seu roteiro abaixo. A ferramenta o dividirá em partes otimizadas para narração.
+        <p class="mb-8 text-gray-300 text-center text-base sm:text-lg leading-relaxed">
+            Cole seu roteiro abaixo. A ferramenta o dividirá em partes otimizadas para narração. Seu trabalho é salvo automaticamente.
         </p>
 
         <div class="mb-6">
-            <label for="scriptInput" class="block text-sm font-medium text-gray-300 mb-2">Seu Roteiro:</label>
-            <textarea id="scriptInput" rows="10" class="w-full p-4 bg-gray-700 border-gray-600 hover:border-gray-500 focus:border-blue-500 text-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 placeholder-gray-500 transition-colors duration-150 ease-in-out" placeholder="Era uma vez..." oninput="atualizarInfoRoteiro()"></textarea>
-            <div id="scriptInfo" class="hidden text-sm p-2.5 mt-3 bg-gray-700 bg-opacity-60 border-l-4 border-blue-500 rounded-md text-gray-300 shadow-sm min-h-[2.75rem]"></div>
+            <label for="scriptInput" class="block text-sm font-medium text-gray-300 mb-2 sr-only">Seu Roteiro:</label>
+            <textarea id="scriptInput" rows="10" class="w-full p-4 text-gray-200 rounded-lg shadow-sm focus:ring-2 placeholder-gray-500 transition-colors duration-150 ease-in-out text-base" placeholder="Era uma vez em uma terra distante..." oninput="handleInput()"></textarea>
+            <div id="scriptInfo" class="hidden text-sm p-3 mt-3 border-l-4 rounded-md text-gray-300 shadow-sm min-h-[3rem]"></div>
             <div id="charLimitWarning" class="text-sm text-red-400 mt-1 min-h-[1.25rem]"></div>
         </div>
 
-        <button id="splitButton" onclick="dividirRoteiroEmSegmentos()"
-            class="w-full font-semibold py-3.5 px-6 rounded-lg shadow-xl transform transition-all duration-150 ease-in-out
-                   bg-gradient-to-r from-blue-500 via-blue-600 to-teal-500 hover:from-blue-600 hover:via-blue-700 hover:to-teal-600
-                   hover:scale-102 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-60 text-white text-lg">
-            Dividir Roteiro em Segmentos
-        </button>
-
-        <div id="output" class="mt-10 hidden">
+        <div class="flex flex-col sm:flex-row gap-4 mb-10">
+            <button id="splitButton" onclick="dividirRoteiroEmSegmentos()"
+                class="main-action-button w-full sm:w-auto flex-grow font-semibold py-3 px-6 rounded-lg shadow-lg
+                       bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500 hover:from-blue-700 hover:via-sky-600 hover:to-teal-600
+                       focus:outline-none focus:ring-4 focus:ring-sky-500 focus:ring-opacity-50 text-white text-lg">
+                Dividir Roteiro
+            </button>
+            <button id="clearAllButton" onclick="limparTudo()"
+                class="main-action-button w-full sm:w-auto font-semibold py-3 px-6 rounded-lg shadow-lg
+                       bg-red-600 hover:bg-red-700
+                       focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-white text-lg">
+                Limpar Tudo
+            </button>
         </div>
 
-        <p id="copyFeedbackGlobal" class="text-center text-sm mt-3 text-green-400 h-5 hidden"></p>
+        <div id="output" class="mt-8 hidden"></div>
+        </div>
 
-    </div>
-
-    <footer class="text-center mt-10 mb-6 text-sm text-gray-400 space-y-1">
-        <p>&copy; 2025 Ferramenta de Divisão de Roteiros.</p>
+    <footer class="text-center py-8 text-sm text-gray-400">
+        <p>&copy; <span id="currentYear"></span> Ferramenta de Divisão de Roteiros.</p>
         <p>Desenvolvido por Emerson Meraki</p>
     </footer>
 
     <script>
-        // Constantes para a lógica de divisão
+        // Constants
         const MIN_WORDS_PER_PART = 3;
         const SHORT_PART_INDEX_LIMIT = 15;
         const MIN_WORDS_CONTEXT_EXTENDED = 21;
         const MAX_WORDS_PER_PART_HARD_LIMIT = 50;
         const MAX_CHAR_LIMIT_TTS = 17000;
         const MAX_PARTS_PER_SEGMENT = 95;
-
         const CHARS_PER_MINUTE_NARRATION = 850;
 
-        function atualizarInfoRoteiro() {
-            const scriptInput = document.getElementById('scriptInput');
-            const scriptInfoDiv = document.getElementById('scriptInfo');
-            const charLimitWarningDiv = document.getElementById('charLimitWarning');
+        // LocalStorage keys
+        const LS_ROTEIRO_KEY = 'roteiroSalvoModerno';
+        const LS_COPIA_ESTADO_KEY = 'estadoCopiaSegmentosModerno';
 
-            const rawText = scriptInput.value; 
-            const charCount = rawText.length; 
+        // DOM Elements
+        const scriptInputElement = document.getElementById('scriptInput');
+        const scriptInfoDivElement = document.getElementById('scriptInfo');
+        const charLimitWarningDivElement = document.getElementById('charLimitWarning');
+        const outputDivElement = document.getElementById('output');
+        // copyFeedbackGlobalElement não é mais necessário
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            let timeEstimate = "";
+        function getFromLocalStorage(key, defaultValue = null) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (e) { console.error("Error reading from localStorage", e); return defaultValue; }
+        }
+
+        function saveToLocalStorage(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); } 
+            catch (e) { console.error("Error saving to localStorage", e); }
+        }
+
+        function removeFromLocalStorage(key) {
+            try { localStorage.removeItem(key); } 
+            catch (e) { console.error("Error removing from localStorage", e); }
+        }
+
+        function handleInput() {
+            const rawText = scriptInputElement.value;
+            const charCount = rawText.length;
+
             if (charCount > 0) {
                 const minutes = Math.ceil(charCount / CHARS_PER_MINUTE_NARRATION);
-                timeEstimate = minutes === 1 ? `~1 minuto de vídeo (total)` : `~${minutes} minutos de vídeo (total)`;
-                scriptInfoDiv.innerHTML = `<span class="font-semibold text-gray-100">Caracteres (originais):</span> ${charCount.toLocaleString('pt-BR')} <span class="text-gray-500 mx-1">|</span> <span class="font-semibold text-gray-100">Tempo Estimado:</span> ${timeEstimate}`;
-                scriptInfoDiv.classList.remove('hidden');
+                const timeEstimate = minutes === 1 ? `~1 min de vídeo` : `~${minutes} min de vídeo`;
+                scriptInfoDivElement.innerHTML = `<span class="font-semibold text-gray-100">Caracteres:</span> ${charCount.toLocaleString('pt-BR')} <span class="text-gray-400 mx-1.5">|</span> <span class="font-semibold text-gray-100">Estimativa:</span> ${timeEstimate}`;
+                scriptInfoDivElement.classList.remove('hidden');
+                scriptInfoDivElement.classList.add('border-blue-500');
             } else {
-                scriptInfoDiv.innerHTML = '';
-                scriptInfoDiv.classList.add('hidden');
+                scriptInfoDivElement.innerHTML = '';
+                scriptInfoDivElement.classList.add('hidden');
             }
-            charLimitWarningDiv.textContent = '';
+            charLimitWarningDivElement.textContent = '';
 
-            const originalSelectionStart = scriptInput.selectionStart;
-            const originalSelectionEnd = scriptInput.selectionEnd;
-
+            const originalSelectionStart = scriptInputElement.selectionStart;
+            const originalSelectionEnd = scriptInputElement.selectionEnd;
             const cleanedText = rawText.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
 
             if (rawText !== cleanedText) {
-                scriptInput.value = cleanedText;
+                scriptInputElement.value = cleanedText;
                 const prefixBeforeClean = rawText.substring(0, originalSelectionStart);
                 const cleanedPrefix = prefixBeforeClean.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
                 const newSelectionStart = cleanedPrefix.length;
-
-                let newSelectionEnd;
-                if (originalSelectionStart === originalSelectionEnd) {
-                    newSelectionEnd = newSelectionStart;
-                } else {
+                let newSelectionEnd = newSelectionStart;
+                if (originalSelectionStart !== originalSelectionEnd) {
                     const textUpToSelectionEndBeforeClean = rawText.substring(0, originalSelectionEnd);
                     const cleanedTextUpToSelectionEnd = textUpToSelectionEndBeforeClean.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
                     newSelectionEnd = cleanedTextUpToSelectionEnd.length;
                 }
-                scriptInput.setSelectionRange(newSelectionStart, newSelectionEnd);
+                scriptInputElement.setSelectionRange(newSelectionStart, newSelectionEnd);
             }
+            saveToLocalStorage(LS_ROTEIRO_KEY, scriptInputElement.value);
         }
-
+        
         function contarPalavrasValidas(texto) {
             if (!texto || texto.trim() === "") return 0;
-            const palavras = texto.trim().toLowerCase()
-                                .replace(/[\.,!?;:()"'\-\u2013\u2014]/g, ' ')
-                                .replace(/\s+/g, ' ')
-                                .split(' ')
-                                .filter(palavra => /[a-zA-Z0-9À-ÖØ-öø-ÿ]+/.test(palavra));
-            return palavras.length;
+            return texto.trim().toLowerCase()
+                        .replace(/[\.,!?;:()"'\-\u2013\u2014]/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .split(' ')
+                        .filter(palavra => /[a-zA-Z0-9À-ÖØ-öø-ÿ]+/.test(palavra)).length;
         }
 
         function checkParenthesesBalance(text) {
@@ -183,111 +252,74 @@
             return balance === 0;
         }
 
-        function generateAllPartsFromText(scriptText) { 
+        function generateAllPartsFromText(scriptText) {
             let allGeneratedParts = [];
-            let remainingText = scriptText; 
-            let currentPartText = "";
-            let textAfterGeneratedPart = "";
-
+            let remainingText = scriptText;
             while (remainingText.length > 0) {
                 const prospectivePartIndex = allGeneratedParts.length;
                 let minWords = (prospectivePartIndex < SHORT_PART_INDEX_LIMIT) ? MIN_WORDS_PER_PART : MIN_WORDS_CONTEXT_EXTENDED;
                 let allowCommaAsPunctuation = (prospectivePartIndex >= SHORT_PART_INDEX_LIMIT);
-                let foundValidBreakForNextIndividualPart = false;
+                let foundValidBreak = false;
 
                 for (let k = 1; k <= remainingText.length; k++) {
                     const potentialPart = remainingText.substring(0, k);
                     const wordCount = contarPalavrasValidas(potentialPart);
+                    let currentPartText = "";
+                    let textAfterGeneratedPart = "";
 
                     if (wordCount > MAX_WORDS_PER_PART_HARD_LIMIT) {
-                        let forcedIndividualPartText = "";
-                        let wordsInOriginalText = remainingText.split(/(\s+)/);
-                        let currentLengthInChars = 0;
-                        let lastValidLengthInChars = 0;
-
-                        for (let i = 0; i < wordsInOriginalText.length; i++) {
-                            let token = wordsInOriginalText[i];
-                            let nextForcedIndividualPartText = forcedIndividualPartText + token;
-
-                            if (contarPalavrasValidas(nextForcedIndividualPartText.trim()) > MAX_WORDS_PER_PART_HARD_LIMIT) {
-                                if (lastValidLengthInChars === 0 && token.trim() !== "") {
-                                    lastValidLengthInChars = token.length;
-                                }
-                                break;
-                            }
-                            forcedIndividualPartText = nextForcedIndividualPartText;
-                            currentLengthInChars += token.length;
-
-                            if (token.trim() !== "") {
-                                 lastValidLengthInChars = currentLengthInChars;
-                            }
+                        let forcedText = "";
+                        const words = remainingText.split(/(\s+)/);
+                        let lastValidLen = 0;
+                        for (let i = 0; i < words.length; i++) {
+                            const tempForced = forcedText + words[i];
+                            if (contarPalavrasValidas(tempForced.trim()) > MAX_WORDS_PER_PART_HARD_LIMIT) break;
+                            forcedText = tempForced;
+                            if (words[i].trim() !== "") lastValidLen = forcedText.length;
                         }
-
-                        currentPartText = remainingText.substring(0, lastValidLengthInChars).trim();
-                        textAfterGeneratedPart = remainingText.substring(lastValidLengthInChars).trim();
-
+                        currentPartText = remainingText.substring(0, lastValidLen).trim();
+                        textAfterGeneratedPart = remainingText.substring(lastValidLen).trim();
                         if (currentPartText && (contarPalavrasValidas(currentPartText) >= minWords || (contarPalavrasValidas(currentPartText) > 0 && !textAfterGeneratedPart))) {
-                            allGeneratedParts.push(currentPartText);
-                            remainingText = textAfterGeneratedPart;
-                            foundValidBreakForNextIndividualPart = true;
-                        } else {
-                            foundValidBreakForNextIndividualPart = false;
+                           allGeneratedParts.push(currentPartText);
+                           remainingText = textAfterGeneratedPart;
+                           foundValidBreak = true;
                         }
                         break;
                     }
 
                     const charAtKMinus1 = remainingText[k - 1];
-                    let isNaturalPunctuationBreak = false;
+                    let isNaturalBreak = false;
+                    if (['.', '!', '?', ';'].includes(charAtKMinus1) && checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalBreak = true;
+                    else if (charAtKMinus1 === ':' && (k < remainingText.length && remainingText[k] === ' ') && checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalBreak = true;
+                    else if (charAtKMinus1 === ')' && checkParenthesesBalance(potentialPart) && wordCount >= minWords && (k === remainingText.length || remainingText[k] === ' ' || ['.', '!', '?', ',', ';', ':'].includes(remainingText[k]))) isNaturalBreak = true;
+                    else if (allowCommaAsPunctuation && charAtKMinus1 === ',' && (k < remainingText.length && remainingText[k] === ' ') && checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalBreak = true;
 
-                    if (['.', '!', '?', ';'].includes(charAtKMinus1)) {
-                        if (checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalPunctuationBreak = true;
-                    } else if (charAtKMinus1 === ':' && (k < remainingText.length && remainingText[k] === ' ')) {
-                        if (checkParenthesesBalance(potentialPart) && wordCount >= minWords) isNaturalPunctuationBreak = true;
-                    } else if (charAtKMinus1 === ')') {
-                        if (checkParenthesesBalance(potentialPart) && wordCount >= minWords &&
-                            (k === remainingText.length || remainingText[k] === ' ' || ['.', '!', '?', ',', ';', ':'].includes(remainingText[k]))) {
-                            isNaturalPunctuationBreak = true;
-                        }
-                    } else if (allowCommaAsPunctuation && charAtKMinus1 === ',' && (k < remainingText.length && remainingText[k] === ' ')) {
-                         if (checkParenthesesBalance(potentialPart) && wordCount >= minWords) {
-                            isNaturalPunctuationBreak = true;
-                        }
-                    }
-
-                    if (isNaturalPunctuationBreak) {
-                        currentPartText = potentialPart.trim();
-                        textAfterGeneratedPart = remainingText.substring(k).trim();
-                        allGeneratedParts.push(currentPartText);
-                        remainingText = textAfterGeneratedPart;
-                        foundValidBreakForNextIndividualPart = true;
-                        break;
-                    }
-
-                    if (k === remainingText.length) {
-                        if (wordCount >= minWords && wordCount <= MAX_WORDS_PER_PART_HARD_LIMIT) {
+                    if (isNaturalBreak || k === remainingText.length) {
+                        if (isNaturalBreak || (wordCount >= minWords && wordCount <= MAX_WORDS_PER_PART_HARD_LIMIT)) {
                             currentPartText = potentialPart.trim();
+                            textAfterGeneratedPart = remainingText.substring(k).trim();
                             allGeneratedParts.push(currentPartText);
-                            remainingText = "";
-                            foundValidBreakForNextIndividualPart = true;
-                        } else {
-                            foundValidBreakForNextIndividualPart = false;
+                            remainingText = textAfterGeneratedPart;
+                            foundValidBreak = true;
                         }
                         break;
                     }
                 }
-
-                if (!foundValidBreakForNextIndividualPart) {
+                if (!foundValidBreak) {
                     if (remainingText.trim()) {
-                        if (allGeneratedParts.length > 0) {
-                            let lastPart = allGeneratedParts[allGeneratedParts.length - 1];
-                            let combinedText = lastPart + " " + remainingText.trim();
-                            if (contarPalavrasValidas(combinedText) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
-                                allGeneratedParts[allGeneratedParts.length - 1] = combinedText.trim();
-                            } else if (contarPalavrasValidas(remainingText.trim()) >= MIN_WORDS_PER_PART && contarPalavrasValidas(remainingText.trim()) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
-                                allGeneratedParts.push(remainingText.trim());
+                         if (allGeneratedParts.length > 0) {
+                            let lastP = allGeneratedParts.pop() + " " + remainingText.trim();
+                            if(contarPalavrasValidas(lastP) <= MAX_WORDS_PER_PART_HARD_LIMIT) allGeneratedParts.push(lastP);
+                            else { 
+                                let truncatedPart = lastP.split(/\s+/).slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" ");
+                                allGeneratedParts.push(truncatedPart);
                             }
-                        } else if (contarPalavrasValidas(remainingText.trim()) >= MIN_WORDS_PER_PART && contarPalavrasValidas(remainingText.trim()) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
-                            allGeneratedParts.push(remainingText.trim());
+                        } else {
+                            let singlePart = remainingText.trim();
+                             if(contarPalavrasValidas(singlePart) > MAX_WORDS_PER_PART_HARD_LIMIT) {
+                                singlePart = singlePart.split(/\s+/).slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" ");
+                             }
+                            allGeneratedParts.push(singlePart);
                         }
                     }
                     break;
@@ -297,262 +329,257 @@
         }
 
         function getLengthOfTextToCopyForSegment(partsArray) {
-            let totalLength = 0;
-            partsArray.forEach((part, index) => {
-                totalLength += part.trim().length;
-                if (index < partsArray.length - 1) {
-                    // Alterado de 3 para 2 para representar \n\n
-                    totalLength += 2; 
-                }
-            });
-            return totalLength;
+            return partsArray.reduce((acc, part, index) => acc + part.trim().length + (index < partsArray.length - 1 ? 2 : 0), 0);
         }
-
 
         function groupPartsIntoSegments(allParts) {
             const segments = [];
             if (!allParts || allParts.length === 0) return segments;
+            let currentSegmentParts = [], currentGlobalPartIndex = 1;
 
-            let currentSegmentParts = [];
-            let currentSegmentCharsForLimit = 0;
-            let currentGlobalPartIndexForSegmentStart = 1;
-
-            for (let i = 0; i < allParts.length; i++) {
-                const partText = allParts[i];
-
-                const tempNextSegmentParts = [...currentSegmentParts, partText];
-                const tempNextSegmentChars = getLengthOfTextToCopyForSegment(tempNextSegmentParts);
-
-                if (currentSegmentParts.length > 0 &&
-                    (currentSegmentParts.length >= MAX_PARTS_PER_SEGMENT || tempNextSegmentChars > MAX_CHAR_LIMIT_TTS)
-                   ) {
-                    segments.push({
-                        parts: [...currentSegmentParts],
-                        startGlobalIndex: currentGlobalPartIndexForSegmentStart
-                    });
-                    currentGlobalPartIndexForSegmentStart += currentSegmentParts.length;
+            for (const partText of allParts) {
+                const tempParts = [...currentSegmentParts, partText];
+                if (currentSegmentParts.length > 0 && (currentSegmentParts.length >= MAX_PARTS_PER_SEGMENT || getLengthOfTextToCopyForSegment(tempParts) > MAX_CHAR_LIMIT_TTS)) {
+                    segments.push({ parts: [...currentSegmentParts], startGlobalIndex: currentGlobalPartIndex });
+                    currentGlobalPartIndex += currentSegmentParts.length;
                     currentSegmentParts = [];
-                    currentSegmentCharsForLimit = 0;
                 }
-
                 currentSegmentParts.push(partText);
-                currentSegmentCharsForLimit = getLengthOfTextToCopyForSegment(currentSegmentParts);
             }
-
             if (currentSegmentParts.length > 0) {
-                segments.push({
-                    parts: [...currentSegmentParts],
-                    startGlobalIndex: currentGlobalPartIndexForSegmentStart
-                });
+                segments.push({ parts: [...currentSegmentParts], startGlobalIndex: currentGlobalPartIndex });
             }
             return segments;
         }
 
         function dividirRoteiroEmSegmentos() {
-            const scriptInput = document.getElementById('scriptInput');
-            const outputDiv = document.getElementById('output');
-            const copyFeedbackGlobal = document.getElementById('copyFeedbackGlobal');
-            
-            const scriptText = scriptInput.value.trim();
+            const scriptText = scriptInputElement.value.trim();
+            outputDivElement.innerHTML = '';
+            outputDivElement.classList.add('hidden');
+            saveToLocalStorage(LS_COPIA_ESTADO_KEY, { copied: [], lastCopied: null });
 
-            outputDiv.innerHTML = '';
-            outputDiv.classList.add('hidden');
-            copyFeedbackGlobal.textContent = '';
-            copyFeedbackGlobal.classList.add('hidden');
-
-            if (!scriptText) { 
-                outputDiv.innerHTML = `<p class="text-center text-gray-400 p-3">Digite ou cole seu roteiro para começar.</p>`;
-                outputDiv.classList.remove('hidden');
+            if (!scriptText) {
+                outputDivElement.innerHTML = `<p class="text-center text-gray-400 p-3">Digite ou cole seu roteiro para começar.</p>`;
+                outputDivElement.classList.remove('hidden');
                 return;
             }
 
-            let allGeneratedParts = generateAllPartsFromText(scriptText); 
-
-            const finalFilteredParts = [];
+            let allGeneratedParts = generateAllPartsFromText(scriptText);
+             const finalFilteredParts = [];
             for(let i = 0; i < allGeneratedParts.length; i++) {
-                const partText = allGeneratedParts[i].trim(); 
+                const partText = allGeneratedParts[i].trim();
                 if (!partText) continue;
-
                 const wc = contarPalavrasValidas(partText);
-                const currentFinalPartIndex = finalFilteredParts.length;
-                const minRequiredWords = (currentFinalPartIndex < SHORT_PART_INDEX_LIMIT) ? MIN_WORDS_PER_PART : MIN_WORDS_CONTEXT_EXTENDED;
-
-                if (wc >= minRequiredWords && wc <= MAX_WORDS_PER_PART_HARD_LIMIT) {
-                    finalFilteredParts.push(partText);
-                } else if (wc < minRequiredWords && finalFilteredParts.length > 0 && allGeneratedParts.length > 1) {
-                    let combinedWithPrevious = finalFilteredParts[finalFilteredParts.length - 1] + " " + partText;
-                    if (contarPalavrasValidas(combinedWithPrevious) <= MAX_WORDS_PER_PART_HARD_LIMIT) {
-                        finalFilteredParts[finalFilteredParts.length - 1] = combinedWithPrevious.trim();
-                    }
-                } else if (wc > 0 && wc < minRequiredWords && finalFilteredParts.length === 0 && wc <= MAX_WORDS_PER_PART_HARD_LIMIT) {
-                    finalFilteredParts.push(partText);
-                }
+                const minW = (finalFilteredParts.length < SHORT_PART_INDEX_LIMIT) ? MIN_WORDS_PER_PART : MIN_WORDS_CONTEXT_EXTENDED;
+                if (wc >= minW && wc <= MAX_WORDS_PER_PART_HARD_LIMIT) finalFilteredParts.push(partText);
+                else if (wc < minW && finalFilteredParts.length > 0 && allGeneratedParts.length > 1) {
+                    let combined = finalFilteredParts.pop() + " " + partText;
+                     if (contarPalavrasValidas(combined) <= MAX_WORDS_PER_PART_HARD_LIMIT) finalFilteredParts.push(combined.trim());
+                    else {
+                        finalFilteredParts.push(combined.trim().split(/\s+/).slice(0, MAX_WORDS_PER_PART_HARD_LIMIT).join(" "));
+                     }
+                } else if (wc > 0 && wc < minW && finalFilteredParts.length === 0 && wc <= MAX_WORDS_PER_PART_HARD_LIMIT) finalFilteredParts.push(partText);
             }
             allGeneratedParts = finalFilteredParts.filter(p => p.trim().length > 0 && contarPalavrasValidas(p) > 0);
 
-
             if (allGeneratedParts.length === 0) {
-                outputDiv.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-50 border border-orange-700 rounded-md">Não foi possível dividir o roteiro em partes válidas com as configurações atuais.</p>`;
-                outputDiv.classList.remove('hidden');
+                outputDivElement.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-30 border border-orange-700 rounded-md">Não foi possível dividir o roteiro em partes válidas.</p>`;
+                outputDivElement.classList.remove('hidden');
                 return;
             }
-
             const scriptSegments = groupPartsIntoSegments(allGeneratedParts);
-            outputDiv.classList.remove('hidden');
+            outputDivElement.classList.remove('hidden');
             displaySegmentResults(scriptSegments);
         }
 
-
         function displaySegmentResults(segments) {
-            const outputDiv = document.getElementById('output');
-
+            outputDivElement.innerHTML = '';
             if (segments.length === 0) {
-                 outputDiv.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-50 border border-orange-700 rounded-md">Nenhum segmento gerado. O roteiro pode ser muito curto ou não formou partes válidas.</p>`;
+                outputDivElement.innerHTML = `<p class="text-center text-orange-400 p-3">Nenhum segmento gerado.</p>`;
                 return;
             }
-
             const summaryTitle = document.createElement('h2');
-            summaryTitle.className = 'text-2xl font-semibold mb-6 text-center text-blue-300';
-
-            let firstSegmentCharsForCopy = 0;
-            if (segments.length > 0 && segments[0].parts) {
-                firstSegmentCharsForCopy = getLengthOfTextToCopyForSegment(segments[0].parts);
-            }
-
-            if (segments.length === 1 && firstSegmentCharsForCopy <= MAX_CHAR_LIMIT_TTS) {
-                 summaryTitle.textContent = `Roteiro pronto em 1 segmento para seu vídeo.`;
-            } else if (segments.length > 0) {
-                 summaryTitle.textContent = `Roteiro dividido em ${segments.length} segmento(s) para seu vídeo.`;
-            } else {
-                 summaryTitle.textContent = `Roteiro processado.`;
-            }
-            outputDiv.appendChild(summaryTitle);
+            summaryTitle.className = 'text-2xl font-semibold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-teal-300';
+            const firstSegChars = segments.length > 0 && segments[0].parts ? getLengthOfTextToCopyForSegment(segments[0].parts) : 0;
+            if (segments.length === 1 && firstSegChars <= MAX_CHAR_LIMIT_TTS) summaryTitle.textContent = `Roteiro pronto em 1 segmento.`;
+            else summaryTitle.textContent = `Roteiro dividido em ${segments.length} segmento(s).`;
+            outputDivElement.appendChild(summaryTitle);
 
             segments.forEach((segmentData, segmentIndex) => {
                 const segmentSection = document.createElement('div');
                 segmentSection.className = 'segment-section';
+                segmentSection.dataset.segmentIndex = segmentIndex;
 
-                const segmentTitle = document.createElement('h3');
-                segmentTitle.className = 'text-xl font-semibold mb-4 text-gray-100';
-
-                const firstPartDisplayIndex = segmentData.startGlobalIndex;
-                const lastPartDisplayIndex = segmentData.startGlobalIndex + segmentData.parts.length - 1;
-
-                segmentTitle.textContent = `Segmento ${segmentIndex + 1} (Partes ${firstPartDisplayIndex}-${lastPartDisplayIndex} | ${segmentData.parts.length} partes)`;
-                segmentSection.appendChild(segmentTitle);
+                const segmentTitleElement = document.createElement('h3');
+                segmentTitleElement.className = 'text-xl font-semibold mb-4 text-gray-100';
+                segmentTitleElement.textContent = `Segmento ${segmentIndex + 1} (Partes ${segmentData.startGlobalIndex}-${segmentData.startGlobalIndex + segmentData.parts.length - 1} | ${segmentData.parts.length} partes)`;
+                segmentSection.appendChild(segmentTitleElement);
 
                 const listContainer = document.createElement('div');
                 listContainer.className = 'results-scroll-container';
-
                 const ol = document.createElement('ol');
-                ol.className = 'list-none space-y-3 p-1';
+                ol.className = 'list-none space-y-2.5 p-1';
 
                 segmentData.parts.forEach((part, indexInSegment) => {
                     const li = document.createElement('li');
-                    li.className = 'p-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm break-words text-gray-300 transition-shadow hover:shadow-md hover:border-blue-500';
+                    li.id = `segment-${segmentIndex}-part-${indexInSegment}`;
+                    li.className = 'segment-item p-3 bg-gray-800 bg-opacity-60 border border-gray-700 rounded-lg shadow-sm break-words text-gray-300';
                     li.style.whiteSpace = 'pre-wrap';
-
+                    
                     const partNumberSpan = document.createElement('span');
-                    partNumberSpan.className = 'font-semibold text-blue-400 mr-2';
+                    partNumberSpan.className = 'font-semibold text-sky-400 mr-2';
                     partNumberSpan.textContent = `${segmentData.startGlobalIndex + indexInSegment}.`;
-
-                    const partContent = document.createTextNode(part);
-
                     li.appendChild(partNumberSpan);
-                    li.appendChild(partContent);
+                    li.appendChild(document.createTextNode(part));
                     ol.appendChild(li);
                 });
                 listContainer.appendChild(ol);
                 segmentSection.appendChild(listContainer);
 
                 const copyButton = document.createElement('button');
-                copyButton.className = 'mt-6 w-full font-semibold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg transform transition-all duration-150 ease-in-out bg-green-600 hover:bg-green-700 hover:scale-102 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 text-white flex items-center justify-center';
-                copyButton.innerHTML = `<svg class="copy-button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> <span id="copyButtonTextSegment${segmentIndex}">Copiar Segmento ${segmentIndex + 1}</span>`;
+                copyButton.id = `copyButtonSegment${segmentIndex}`;
+                copyButton.className = 'copy-button mt-6 w-full font-medium py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-sky-500 text-white flex items-center justify-center bg-teal-600 hover:bg-teal-700';
+                copyButton.innerHTML = `<svg class="copy-button-icon w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> <span>Copiar Segmento ${segmentIndex + 1}</span>`;
                 copyButton.onclick = () => copiarSegmento(segmentData.parts, segmentIndex);
                 segmentSection.appendChild(copyButton);
+                
+                // Adiciona o placeholder para o feedback de cópia local
+                const localCopyFeedback = document.createElement('p');
+                localCopyFeedback.id = `localCopyFeedbackSegment${segmentIndex}`;
+                localCopyFeedback.className = 'local-copy-feedback text-sm mt-3 text-green-400 h-5 text-center opacity-0'; // Começa invisível (opacity-0)
+                segmentSection.appendChild(localCopyFeedback);
 
-                outputDiv.appendChild(segmentSection);
+                outputDivElement.appendChild(segmentSection);
+            });
+            atualizarVisualizacaoCopia();
+        }
+        
+        function atualizarVisualizacaoCopia() {
+            const estadoCopia = getFromLocalStorage(LS_COPIA_ESTADO_KEY, { copied: [], lastCopied: null });
+            const { copied, lastCopied } = estadoCopia;
+
+            document.querySelectorAll('.segment-item.last-copied-visual-marker').forEach(li => {
+                li.classList.remove('last-copied-visual-marker');
+            });
+
+            document.querySelectorAll('.copy-button').forEach((btn, index) => {
+                const buttonTextSpan = btn.querySelector('span');
+                btn.classList.remove('copied', 'last-copied-button', 'bg-emerald-500', 'hover:bg-emerald-600', 'bg-blue-500', 'hover:bg-blue-600', 'font-semibold');
+                btn.classList.add('bg-teal-600', 'hover:bg-teal-700', 'font-medium');
+
+                if (copied.includes(index)) {
+                    btn.classList.add('copied');
+                    btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+                    btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                    if (buttonTextSpan) buttonTextSpan.textContent = `Copiado ✔️`;
+
+                    if (index === lastCopied) {
+                        btn.classList.add('last-copied-button');
+                        btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+                        btn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'font-semibold');
+                        if (buttonTextSpan) buttonTextSpan.textContent = `Último Copiado ✔️`;
+                        
+                        const segmentSection = btn.closest('.segment-section');
+                        if (segmentSection) {
+                            const firstLi = segmentSection.querySelector('.segment-item');
+                            if (firstLi) {
+                                firstLi.classList.add('last-copied-visual-marker');
+                            }
+                        }
+                    }
+                } else {
+                    if (buttonTextSpan) buttonTextSpan.textContent = `Copiar Segmento ${index + 1}`;
+                }
             });
         }
 
         function copiarSegmento(partsArray, segmentIndex) {
-            const copyButtonTextElement = document.getElementById(`copyButtonTextSegment${segmentIndex}`);
-            const copyFeedbackGlobal = document.getElementById('copyFeedbackGlobal');
-
-            if (partsArray.length === 0) {
-                copyFeedbackGlobal.classList.remove('hidden');
-                copyFeedbackGlobal.textContent = `Segmento ${segmentIndex + 1} não tem nada para copiar.`;
-                setTimeout(() => {
-                    copyFeedbackGlobal.textContent = '';
-                    copyFeedbackGlobal.classList.add('hidden');
-                }, 3000);
-                return;
-            }
-            // Alterado para \n\n para separar as partes, resultando em uma linha em branco entre elas.
             const textToCopy = partsArray.map(part => part.trim()).join('\n\n');
+            const estadoCopia = getFromLocalStorage(LS_COPIA_ESTADO_KEY, { copied: [], lastCopied: null });
+            
+            if (!estadoCopia.copied.includes(segmentIndex)) {
+                estadoCopia.copied.push(segmentIndex);
+            }
+            estadoCopia.lastCopied = segmentIndex;
+            saveToLocalStorage(LS_COPIA_ESTADO_KEY, estadoCopia);
+
+            const localFeedbackElement = document.getElementById(`localCopyFeedbackSegment${segmentIndex}`);
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
-                    const originalButtonText = `Copiar Segmento ${segmentIndex + 1}`;
-                    if (copyButtonTextElement) copyButtonTextElement.textContent = 'Copiado!';
-                    copyFeedbackGlobal.classList.remove('hidden');
-                    copyFeedbackGlobal.textContent = `Conteúdo do Segmento ${segmentIndex + 1} copiado!`;
-                    setTimeout(() => {
-                        if (copyButtonTextElement) copyButtonTextElement.textContent = originalButtonText;
-                        copyFeedbackGlobal.textContent = '';
-                        copyFeedbackGlobal.classList.add('hidden');
-                    }, 2500);
+                    if(localFeedbackElement) {
+                        localFeedbackElement.textContent = `Segmento ${segmentIndex + 1} copiado!`;
+                        localFeedbackElement.classList.remove('opacity-0');
+                        localFeedbackElement.classList.add('text-green-400'); // Garante cor verde para sucesso
+                        setTimeout(() => {
+                            localFeedbackElement.classList.add('opacity-0');
+                        }, 2500);
+                    }
+                    atualizarVisualizacaoCopia();
                 }).catch(err => {
-                    console.warn('Falha ao copiar com a API Clipboard. Tentando fallback...', err);
-                    fallbackCopyTextToClipboard(textToCopy, copyButtonTextElement, `Copiar Segmento ${segmentIndex + 1}`, copyFeedbackGlobal, `Segmento ${segmentIndex + 1}`);
+                    fallbackCopyTextToClipboard(textToCopy, segmentIndex, localFeedbackElement);
                 });
             } else {
-                console.warn('API Clipboard não disponível. Usando fallback...');
-                fallbackCopyTextToClipboard(textToCopy, copyButtonTextElement, `Copiar Segmento ${segmentIndex + 1}`, copyFeedbackGlobal, `Segmento ${segmentIndex + 1}`);
+                fallbackCopyTextToClipboard(textToCopy, segmentIndex, localFeedbackElement);
             }
         }
 
-        function fallbackCopyTextToClipboard(text, buttonTextElement, originalButtonTextContent, feedbackElement, segmentIdentifier) {
+        function fallbackCopyTextToClipboard(text, segmentIndex, localFeedbackEl) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
-            textArea.style.position = "fixed"; textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.opacity = "0";
+            textArea.style.position = "fixed"; textArea.style.top = "-9999px"; textArea.style.left = "-9999px";
             document.body.appendChild(textArea);
             textArea.focus(); textArea.select();
+            let message = "";
+            let success = false;
             try {
-                const successful = document.execCommand('copy');
-                feedbackElement.classList.remove('hidden');
-                if (successful) {
-                    if (buttonTextElement) buttonTextElement.textContent = 'Copiado!';
-                    feedbackElement.textContent = `Conteúdo do ${segmentIdentifier} copiado (método alternativo)!`;
-                    setTimeout(() => {
-                        if (buttonTextElement) buttonTextElement.textContent = originalButtonTextContent;
-                        feedbackElement.textContent = '';
-                        feedbackElement.classList.add('hidden');
-                    }, 2500);
-                } else {
-                    feedbackElement.textContent = `Falha ao copiar ${segmentIdentifier}. Tente copiar manualmente.`;
-                    setTimeout(() => {
-                        feedbackElement.textContent = '';
-                        feedbackElement.classList.add('hidden');
-                    }, 3500);
-                }
+                document.execCommand('copy');
+                message = `Segmento ${segmentIndex + 1} copiado (fallback)!`;
+                success = true;
+                atualizarVisualizacaoCopia();
             } catch (err) {
-                feedbackElement.classList.remove('hidden');
-                feedbackElement.textContent = `Erro ao copiar ${segmentIdentifier}. Tente copiar manualmente.`;
+                message = `Falha ao copiar Segmento ${segmentIndex + 1}.`;
+            }
+            
+            if(localFeedbackEl) {
+                localFeedbackEl.textContent = message;
+                localFeedbackEl.classList.remove('opacity-0');
+                if(success) localFeedbackEl.classList.replace('text-red-400','text-green-400') 
+                else localFeedbackEl.classList.replace('text-green-400','text-red-400');
+
                 setTimeout(() => {
-                    feedbackElement.textContent = '';
-                    feedbackElement.classList.add('hidden');
-                }, 3500);
+                    localFeedbackEl.classList.add('opacity-0');
+                }, 3000);
             }
             document.body.removeChild(textArea);
         }
 
+        function limparTudo() {
+            scriptInputElement.value = '';
+            outputDivElement.innerHTML = '';
+            outputDivElement.classList.add('hidden');
+            scriptInfoDivElement.classList.add('hidden');
+            // Não há mais copyFeedbackGlobalElement
+            
+            removeFromLocalStorage(LS_ROTEIRO_KEY);
+            removeFromLocalStorage(LS_COPIA_ESTADO_KEY);
+            
+            handleInput(); 
+            console.log("Tudo limpo, incluindo LocalStorage.");
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            atualizarInfoRoteiro(); 
-            document.getElementById('output').classList.add('hidden');
-            document.getElementById('copyFeedbackGlobal').classList.add('hidden');
+            const roteiroSalvo = getFromLocalStorage(LS_ROTEIRO_KEY, '');
+            if (roteiroSalvo) {
+                scriptInputElement.value = roteiroSalvo;
+                handleInput(); 
+                if (scriptInputElement.value.trim()) { 
+                    dividirRoteiroEmSegmentos();
+                }
+            } else {
+                 handleInput(); 
+            }
         });
     </script>
-
 </body>
 </html>
