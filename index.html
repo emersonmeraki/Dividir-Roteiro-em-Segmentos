@@ -81,7 +81,6 @@
 
         <p class="mb-6 text-gray-300 text-center text-base sm:text-lg">
             Cole seu roteiro abaixo. A ferramenta o dividirá em partes otimizadas para narração.
-            O texto será pré-processado para remover quebras de linha antes da divisão.
         </p>
 
         <div class="mb-6">
@@ -125,23 +124,43 @@
             const scriptInput = document.getElementById('scriptInput');
             const scriptInfoDiv = document.getElementById('scriptInfo');
             const charLimitWarningDiv = document.getElementById('charLimitWarning');
-            
-            // Pega o texto bruto para contagem de caracteres original
-            const rawText = scriptInput.value;
-            const charCount = rawText.length;
+
+            const rawText = scriptInput.value; 
+            const charCount = rawText.length; 
 
             let timeEstimate = "";
             if (charCount > 0) {
                 const minutes = Math.ceil(charCount / CHARS_PER_MINUTE_NARRATION);
                 timeEstimate = minutes === 1 ? `~1 minuto de vídeo (total)` : `~${minutes} minutos de vídeo (total)`;
                 scriptInfoDiv.innerHTML = `<span class="font-semibold text-gray-100">Caracteres (originais):</span> ${charCount.toLocaleString('pt-BR')} <span class="text-gray-500 mx-1">|</span> <span class="font-semibold text-gray-100">Tempo Estimado:</span> ${timeEstimate}`;
-                scriptInfoDiv.classList.remove('hidden'); // Mostra a div de info
+                scriptInfoDiv.classList.remove('hidden');
             } else {
-                scriptInfoDiv.innerHTML = ''; // Limpa o conteúdo
-                scriptInfoDiv.classList.add('hidden'); // Oculta a div de info
+                scriptInfoDiv.innerHTML = '';
+                scriptInfoDiv.classList.add('hidden');
             }
-
             charLimitWarningDiv.textContent = '';
+
+            const originalSelectionStart = scriptInput.selectionStart;
+            const originalSelectionEnd = scriptInput.selectionEnd;
+
+            const cleanedText = rawText.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
+
+            if (rawText !== cleanedText) {
+                scriptInput.value = cleanedText;
+                const prefixBeforeClean = rawText.substring(0, originalSelectionStart);
+                const cleanedPrefix = prefixBeforeClean.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
+                const newSelectionStart = cleanedPrefix.length;
+
+                let newSelectionEnd;
+                if (originalSelectionStart === originalSelectionEnd) {
+                    newSelectionEnd = newSelectionStart;
+                } else {
+                    const textUpToSelectionEndBeforeClean = rawText.substring(0, originalSelectionEnd);
+                    const cleanedTextUpToSelectionEnd = textUpToSelectionEndBeforeClean.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
+                    newSelectionEnd = cleanedTextUpToSelectionEnd.length;
+                }
+                scriptInput.setSelectionRange(newSelectionStart, newSelectionEnd);
+            }
         }
 
         function contarPalavrasValidas(texto) {
@@ -164,9 +183,9 @@
             return balance === 0;
         }
 
-        function generateAllPartsFromText(scriptText) {
+        function generateAllPartsFromText(scriptText) { 
             let allGeneratedParts = [];
-            let remainingText = scriptText.trim(); // O scriptText já vem pré-processado (sem quebras de linha e espaços múltiplos)
+            let remainingText = scriptText; 
             let currentPartText = "";
             let textAfterGeneratedPart = "";
 
@@ -282,7 +301,8 @@
             partsArray.forEach((part, index) => {
                 totalLength += part.trim().length;
                 if (index < partsArray.length - 1) {
-                    totalLength += 3; // Representa os \n\n\n entre as partes
+                    // Alterado de 3 para 2 para representar \n\n
+                    totalLength += 2; 
                 }
             });
             return totalLength;
@@ -333,32 +353,24 @@
             const outputDiv = document.getElementById('output');
             const copyFeedbackGlobal = document.getElementById('copyFeedbackGlobal');
             
-            // Pré-processamento do texto:
-            let rawScriptText = scriptInput.value;
-            // 1. Remove todas as quebras de linha (CRLF, LF, CR), substituindo por um espaço
-            let processedScriptText = rawScriptText.replace(/(\r\n|\n|\r)/gm, " ");
-            // 2. Substitui múltiplos espaços (incluindo os gerados pela substituição de quebras de linha) por um único espaço
-            processedScriptText = processedScriptText.replace(/\s+/g, " ").trim();
-            
-            const scriptText = processedScriptText; // Este é o texto que será usado para a divisão
+            const scriptText = scriptInput.value.trim();
 
             outputDiv.innerHTML = '';
             outputDiv.classList.add('hidden');
             copyFeedbackGlobal.textContent = '';
             copyFeedbackGlobal.classList.add('hidden');
-            atualizarInfoRoteiro(); // Atualiza info com base no texto original (antes do processamento para divisão)
 
-            if (!scriptText) { // Verifica se após o processamento ainda há texto
+            if (!scriptText) { 
                 outputDiv.innerHTML = `<p class="text-center text-gray-400 p-3">Digite ou cole seu roteiro para começar.</p>`;
                 outputDiv.classList.remove('hidden');
                 return;
             }
 
-            let allGeneratedParts = generateAllPartsFromText(scriptText);
+            let allGeneratedParts = generateAllPartsFromText(scriptText); 
 
             const finalFilteredParts = [];
             for(let i = 0; i < allGeneratedParts.length; i++) {
-                const partText = allGeneratedParts[i].trim();
+                const partText = allGeneratedParts[i].trim(); 
                 if (!partText) continue;
 
                 const wc = contarPalavrasValidas(partText);
@@ -380,7 +392,7 @@
 
 
             if (allGeneratedParts.length === 0) {
-                outputDiv.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-50 border border-orange-700 rounded-md">Não foi possível dividir o roteiro em partes válidas com as configurações atuais (após pré-processamento do texto).</p>`;
+                outputDiv.innerHTML = `<p class="text-center text-orange-400 p-3 bg-orange-900 bg-opacity-50 border border-orange-700 rounded-md">Não foi possível dividir o roteiro em partes válidas com as configurações atuais.</p>`;
                 outputDiv.classList.remove('hidden');
                 return;
             }
@@ -438,7 +450,7 @@
                 segmentData.parts.forEach((part, indexInSegment) => {
                     const li = document.createElement('li');
                     li.className = 'p-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm break-words text-gray-300 transition-shadow hover:shadow-md hover:border-blue-500';
-                    li.style.whiteSpace = 'pre-wrap'; // Permite que o texto quebre linha dentro do <li>
+                    li.style.whiteSpace = 'pre-wrap';
 
                     const partNumberSpan = document.createElement('span');
                     partNumberSpan.className = 'font-semibold text-blue-400 mr-2';
@@ -476,8 +488,8 @@
                 }, 3000);
                 return;
             }
-            // As partes já são parágrafos individuais. Ao copiar, adicionamos \n\n\n para separá-las claramente.
-            const textToCopy = partsArray.map(part => part.trim()).join('\n\n\n');
+            // Alterado para \n\n para separar as partes, resultando em uma linha em branco entre elas.
+            const textToCopy = partsArray.map(part => part.trim()).join('\n\n');
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
@@ -536,7 +548,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            atualizarInfoRoteiro();
+            atualizarInfoRoteiro(); 
             document.getElementById('output').classList.add('hidden');
             document.getElementById('copyFeedbackGlobal').classList.add('hidden');
         });
